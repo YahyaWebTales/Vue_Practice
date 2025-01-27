@@ -50,6 +50,34 @@ const mySubmit = handleSubmit(async (value) => {
   }
 });
 
+async function fetchUsers(){
+  try{
+    const response = await fetch('https://restapi.fr/api/ListUsers');
+    const users: User | User[] = await response.json();
+    if(users){
+      state.users = Array.isArray(users) ? users : [users];
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+
+async function deleteUser(userId?: string){
+  try{
+    if(userId){
+      await fetch(`https://restapi.fr/api/ListUsers?id=${userId}`, {
+          method: 'DELETE',
+      });
+
+      state.users = state.users.filter((user) => user._id !== userId)
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+
+fetchUsers();
+
 const { value: emailValue, errorMessage: emailError } = useField('email', { validateOnUpdate: false});
 const { value: nameValue, errorMessage: nameError } = useField('name');
 </script>
@@ -83,6 +111,13 @@ const { value: nameValue, errorMessage: nameError } = useField('name');
       <ul>
         <li v-for="user in state.users">
             <p>{{ user.name }} - {{ user.email }}</p>
+            <button
+            @click="deleteUser(user._id)"
+            type="button"
+            class="btn btn-danger"
+          >
+            Supprimer
+          </button>
         </li>
       </ul>
     </div>
